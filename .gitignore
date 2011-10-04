@@ -1,0 +1,19 @@
+/target/
+/logs/
+hs_err_pid*.log
+.ant-targets-build.xml
+
+
+# ignore temp files
+*~
+*.swp
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+
+zk_conf.properties
+aws_conf.properties
+
