@@ -165,7 +165,7 @@ public class MainApp {
 		       .addStatement(exec("apt-get install -y runurl"))//
 		       .addStatement(exec("runurl run.alestic.com/apt/upgrade"))//
                .addStatement(exec("runurl run.alestic.com/install/lamp"))//
-               .addStatement(exec("apt-get -y install openjdk-6-jdk"))// no license agreement!
+               .addStatement(exec("apt-get -y install openjdk-7-jdk"))// no license agreement!
                .render(OsFamily.UNIX);
 
       System.out.printf("%d: running instance%n", System.currentTimeMillis());
