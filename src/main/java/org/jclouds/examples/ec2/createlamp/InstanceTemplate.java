@@ -1,9 +1,9 @@
 /**
- * 
+ *
  */
 package org.jclouds.examples.ec2.createlamp;
 
-import static org.jclouds.ec2.domain.InstanceType.*;
+import static org.jclouds.ec2.domain.InstanceType.T1_MICRO;
 import static org.jclouds.ec2.domain.IpProtocol.TCP;
 import static org.jclouds.ec2.options.RunInstancesOptions.Builder.asType;
 import static org.jclouds.scriptbuilder.domain.Statements.exec;
@@ -18,16 +18,13 @@ import javax.annotation.Resource;
 
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.ec2.EC2Client;
-
 import org.jclouds.ec2.domain.InstanceState;
-import org.jclouds.ec2.domain.InstanceType;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.KeyPair;
 import org.jclouds.ec2.domain.Reservation;
 import org.jclouds.ec2.domain.RunningInstance;
 import org.jclouds.ec2.predicates.InstanceStateRunning;
 import org.jclouds.ec2.predicates.InstanceStateTerminated;
-
 import org.jclouds.logging.Logger;
 import org.jclouds.net.IPSocket;
 import org.jclouds.predicates.InetSocketAddressConnect;
@@ -35,7 +32,6 @@ import org.jclouds.predicates.RetryablePredicate;
 import org.jclouds.scriptbuilder.ScriptBuilder;
 import org.jclouds.scriptbuilder.domain.OsFamily;
 import org.yaml.snakeyaml.Yaml;
-
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -45,7 +41,7 @@ import com.google.common.collect.Sets;
 
 /**
  * @author gena
- * 
+ *
  */
 public class InstanceTemplate {
 

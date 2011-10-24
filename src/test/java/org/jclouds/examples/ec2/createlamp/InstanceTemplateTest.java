@@ -3,21 +3,13 @@
  */
 package org.jclouds.examples.ec2.createlamp;
 
-import static org.junit.Assert.*;
+import static org.jclouds.ec2.domain.InstanceType.M1_LARGE;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeoutException;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.ec2.EC2AsyncClient;
@@ -31,32 +23,20 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.base.Strings;
+import util.AWSUtil;
+
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import com.google.inject.Module;
-import com.jcraft.jcterm.Connection;
 import com.jcraft.jcterm.JCTermSwingFrame;
 import com.jcraft.jcterm.JSchSession;
-import com.jcraft.jcterm.Sftp;
-import com.jcraft.jcterm.Term;
-import com.jcraft.jcterm.JCTermSwingFrame.MyUserInfo;
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.UserInfo;
 
-import static org.jclouds.ec2.domain.InstanceType.*;
-
-import util.AWSUtil;
-
 /**
  * @author gena
- * 
+ *
  */
 public class InstanceTemplateTest {
 
@@ -102,7 +82,7 @@ public class InstanceTemplateTest {
 	 * Test method for
 	 * {@link org.jclouds.examples.ec2.createlamp.InstanceTemplate#run(org.jclouds.ec2.EC2Client)}
 	 * .
-	 * 
+	 *
 	 * @throws TimeoutException
 	 */
 	@Test
@@ -120,11 +100,12 @@ public class InstanceTemplateTest {
 														.withScriptLine("gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00")
 														.withScriptLine("gpg --export --armor 2B5C1B00 | sudo apt-key add -")
 														.withScriptLine("apt-get update")
+														.withScriptLine("apt-get remove -y byobu")
 														.withScriptLine("apt-get install -y libmx4j-java")
 														.withScriptLine("apt-get install -y cassandra")
 														.withScriptLine("echo EXTRA_CLASSPATH=\\\"/usr/share/java/mx4j-tools.jar\\\" >> /etc/default/cassandra")
-														.withScriptLine("service cassandra restart")
-														.withScriptLine("byobu-disable");
+														.withScriptLine("service cassandra restart");
+
 
 		RunningInstance ri = it.run(client);
 		new MyJCTerm(	"ubuntu",
@@ -233,7 +214,8 @@ public class InstanceTemplateTest {
 											}
 										}, null);
 
-				frame = new JCTermSwingFrame(	"JCTerm",
+				frame = new JCTermSwingFrame(	username + "@" + hostname + ":"
+														+ port,
 												username + "@" + hostname + ":"
 														+ port);
 				frame.setVisible(true);
