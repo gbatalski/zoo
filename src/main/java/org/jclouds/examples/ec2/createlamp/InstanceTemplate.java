@@ -3,7 +3,7 @@
  */
 package org.jclouds.examples.ec2.createlamp;
 
-import static com.amazonaws.services.ec2.model.InstanceType.T1Micro;
+import static org.jclouds.ec2.domain.InstanceType.*;
 import static org.jclouds.ec2.domain.IpProtocol.TCP;
 import static org.jclouds.ec2.options.RunInstancesOptions.Builder.asType;
 import static org.jclouds.scriptbuilder.domain.Statements.exec;
@@ -20,6 +20,7 @@ import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.ec2.EC2Client;
 
 import org.jclouds.ec2.domain.InstanceState;
+import org.jclouds.ec2.domain.InstanceType;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.KeyPair;
 import org.jclouds.ec2.domain.Reservation;
@@ -35,7 +36,7 @@ import org.jclouds.scriptbuilder.ScriptBuilder;
 import org.jclouds.scriptbuilder.domain.OsFamily;
 import org.yaml.snakeyaml.Yaml;
 
-import com.amazonaws.services.ec2.model.InstanceType;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -63,7 +64,7 @@ public class InstanceTemplate {
 
 	private List<Integer> testPorts = Lists.newArrayList();
 
-	private InstanceType instanceType = T1Micro;
+	private String instanceType = T1_MICRO;
 
 	private String osFamily = "UNIX";
 
@@ -116,7 +117,7 @@ public class InstanceTemplate {
 		return this;
 	}
 
-	public InstanceTemplate withInstanceType(InstanceType instanceType) {
+	public InstanceTemplate withInstanceType(String instanceType) {
 		this.instanceType = instanceType;
 		return this;
 	}
@@ -224,7 +225,7 @@ public class InstanceTemplate {
 																							image,
 																							1,
 																							1,
-																							asType(instanceType.toString()).withKeyName(keyPair.getKeyName())
+																							asType(instanceType).withKeyName(keyPair.getKeyName())
 																															.withSecurityGroup(createSecurityGroupAndAuthorizePorts(client))
 																															.withUserData(buildScript().getBytes()));
 
@@ -394,7 +395,7 @@ public class InstanceTemplate {
 		return testPorts;
 	}
 
-	public InstanceType getInstanceType() {
+	public String getInstanceType() {
 		return instanceType;
 	}
 
@@ -446,7 +447,7 @@ public class InstanceTemplate {
 		this.testPorts = testPorts;
 	}
 
-	public void setInstanceType(InstanceType instanceType) {
+	public void setInstanceType(String instanceType) {
 		this.instanceType = instanceType;
 	}
 
