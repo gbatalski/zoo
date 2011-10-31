@@ -16,7 +16,9 @@ import org.jclouds.compute.domain.Template;
 import org.jclouds.domain.Location;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.compute.options.EC2TemplateOptions;
+import org.jclouds.io.Payloads;
 import org.jclouds.logging.log4j.config.Log4JLoggingModule;
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.ssh.jsch.config.JschSshClientModule;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,7 +58,7 @@ public class JCloudsTest {
 		ComputeServiceContext context = new ComputeServiceContextFactory().createContext(	"aws-ec2",
 																							accesskeyid,
 																							secretkey,
-																							ImmutableSet.<Module> of(	new Log4JLoggingModule(),
+																							ImmutableSet.<Module> of(	new SLF4JLoggingModule(),
 																														new JschSshClientModule()));
 
 		// here's an example of the portable api
@@ -70,21 +72,32 @@ public class JCloudsTest {
 		Template template = context.getComputeService()
 									.templateBuilder()
 									.osFamily(OsFamily.UBUNTU)
+									.osVersionMatches("11.10")
+									.os64Bit(true)
+//									.imageId("ami-bbf539d2")
 									.build();
 
 		// specify your own groups which already have the correct rules applied
 		// template.getOptions().as(EC2TemplateOptions.class).securityGroups(group1);
+		template.getOptions().inboundPorts(80,22);
+		template.getOptions().runScript(Payloads.newStringPayload("apt-get update -y")).runAsRoot(true);
+		template.getOptions().runScript(Payloads.newStringPayload("apt-get insall -y apache2")).runAsRoot(true);
+		template.getOptions().blockOnPort(22, 30).blockOnPort(80, 30);
+
 
 		// specify your own keypair for use in creating nodes
 		// template.getOptions().as(EC2TemplateOptions.class).keyPair("default");
 		context.getCredentialStore()
 				.entrySet();
 
+
+
 		// run a couple nodes accessible via group
 		Set<? extends NodeMetadata> nodes = context.getComputeService()
 													.createNodesInGroup("webserver",
 																		2,
 																		template);
+
 
 		// when you need access to very ec2-specific features, use the
 		// provider-specific context
