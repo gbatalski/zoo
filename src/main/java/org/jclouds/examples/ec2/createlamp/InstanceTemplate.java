@@ -38,16 +38,28 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+
+import static com.google.common.base.Strings.*;
 
 /**
  * @author gena
- *
+ * 
  */
 public class InstanceTemplate {
+
+	public InstanceTemplate() {
+		super();
+	}
+
+	@Inject
+	private EC2Client client;
 
 	@Resource
 	protected Logger logger = Logger.CONSOLE;
 
+	private String clusterName;
+	
 	private String name;
 
 	private String region = null;
@@ -73,7 +85,7 @@ public class InstanceTemplate {
 	private String keyMaterial;
 
 	public InstanceTemplate(String name) {
-		super();
+		this();
 		this.name = name;
 	}
 
@@ -123,7 +135,7 @@ public class InstanceTemplate {
 		return this;
 	}
 
-	public class PortRange {
+	public static class PortRange {
 		public PortRange(int fromPort) {
 			this(	TCP,
 					fromPort,
@@ -132,9 +144,13 @@ public class InstanceTemplate {
 
 		}
 
+		public PortRange() {
+			super();
+		}
+
 		public PortRange(IpProtocol ipProtocol, int fromPort, int toPort,
 				String cidrIp) {
-			super();
+			this();
 			this.ipProtocol = ipProtocol;
 			this.fromPort = fromPort;
 			this.toPort = toPort;
@@ -183,7 +199,7 @@ public class InstanceTemplate {
 
 	}
 
-	private String createSecurityGroupAndAuthorizePorts(EC2Client client) {
+	private String createSecurityGroupAndAuthorizePorts() {
 		client.getSecurityGroupServices()
 				.createSecurityGroupInRegion(region, name, name);
 		for (PortRange portRange : portRanges)
@@ -198,7 +214,7 @@ public class InstanceTemplate {
 		return name;
 	}
 
-	private KeyPair createKeyPair(EC2Client client) {
+	private KeyPair createKeyPair() {
 		return client.getKeyPairServices()
 						.createKeyPairInRegion(region, name);
 	}
@@ -212,8 +228,8 @@ public class InstanceTemplate {
 		return scriptBuilder.render(OsFamily.valueOf(osFamily));
 	}
 
-	private RunningInstance runInstance(EC2Client client) {
-		KeyPair keyPair = createKeyPair(client);
+	private RunningInstance runInstance() {
+		KeyPair keyPair = createKeyPair();
 		keyMaterial = keyPair.getKeyMaterial();
 		Reservation<? extends RunningInstance> reservation = client.getInstanceServices()
 																	.runInstancesInRegion(	region,
@@ -222,21 +238,21 @@ public class InstanceTemplate {
 																							1,
 																							1,
 																							asType(instanceType).withKeyName(keyPair.getKeyName())
-																															.withSecurityGroup(createSecurityGroupAndAuthorizePorts(client))
-																															.withUserData(buildScript().getBytes()));
+																												.withSecurityGroup(createSecurityGroupAndAuthorizePorts())
+																												.withUserData(buildScript().getBytes()));
 
 		return Iterables.getOnlyElement(reservation);
 
 	}
 
-	public void terminate(EC2Client client) {
+	public void terminate() {
 		try {
-			String id = findInstanceByKeyName(client).getId();
+			String id = findInstanceByKeyName().getId();
 			logger.info(String.format("%s terminating instance", id));
-			RunningInstance instance = findInstanceByKeyName(client);
+			RunningInstance instance = findInstanceByKeyName();
 			client.getInstanceServices()
 					.terminateInstancesInRegion(region, instance.getId());
-			blockUntilInstanceTerminated(client, instance);
+			blockUntilInstanceTerminated(instance);
 		} catch (NoSuchElementException e) {
 		} catch (Exception e) {
 			logger.error("", e);
@@ -259,9 +275,9 @@ public class InstanceTemplate {
 		}
 	}
 
-	public RunningInstance run(EC2Client client) throws TimeoutException {
-		RunningInstance ri = blockUntilInstanceRunning(	client,
-														runInstance(client));
+	public RunningInstance run() throws TimeoutException {
+
+		RunningInstance ri = blockUntilInstanceRunning(runInstance());
 		instanceId = ri.getId();
 		if (Strings.isNullOrEmpty(region))
 			region = ri.getRegion();
@@ -272,8 +288,8 @@ public class InstanceTemplate {
 		return ri;
 	}
 
-	private RunningInstance blockUntilInstanceRunning(EC2Client client,
-			RunningInstance instance) throws TimeoutException {
+	private RunningInstance blockUntilInstanceRunning(RunningInstance instance)
+			throws TimeoutException {
 		// create utilities that wait for the instance to finish
 		RetryablePredicate<RunningInstance> runningTester = new RetryablePredicate<RunningInstance>(new InstanceStateRunning(client),
 																									180,
@@ -287,7 +303,7 @@ public class InstanceTemplate {
 			throw new TimeoutException("timeout waiting for instance to run: "
 					+ instance.getId());
 
-		instance = findInstanceById(client, instance.getId());
+		instance = findInstanceById(instance.getId());
 
 		for (int testPort : testPorts) {
 			RetryablePredicate<IPSocket> socketTester = new RetryablePredicate<IPSocket>(	new InetSocketAddressConnect(),
@@ -312,8 +328,8 @@ public class InstanceTemplate {
 		return instance;
 	}
 
-	private void blockUntilInstanceTerminated(EC2Client client,
-			RunningInstance instance) throws TimeoutException {
+	private void blockUntilInstanceTerminated(RunningInstance instance)
+			throws TimeoutException {
 		// create utilities that wait for the instance to finish
 		RetryablePredicate<RunningInstance> terminatedTester = new RetryablePredicate<RunningInstance>(	new InstanceStateTerminated(client),
 																										180,
@@ -326,7 +342,7 @@ public class InstanceTemplate {
 					+ instance.getId());
 	}
 
-	private RunningInstance findInstanceById(EC2Client client, String instanceId) {
+	private RunningInstance findInstanceById(String instanceId) {
 		// search my account for the instance I just created
 		Set<? extends Reservation<? extends RunningInstance>> reservations = client.getInstanceServices()
 																					.describeInstancesInRegion(	null,
@@ -336,7 +352,7 @@ public class InstanceTemplate {
 		return Iterables.getOnlyElement(Iterables.getOnlyElement(reservations));
 	}
 
-	private RunningInstance findInstanceByKeyName(EC2Client client) {
+	private RunningInstance findInstanceByKeyName() {
 		// search my account for the instance I just created
 		Set<? extends Reservation<? extends RunningInstance>> reservations = client.getInstanceServices()
 																					.describeInstancesInRegion(null);
@@ -461,5 +477,13 @@ public class InstanceTemplate {
 
 	public void setKeyMaterial(String keyMaterial) {
 		this.keyMaterial = keyMaterial;
+	}
+
+	public String getClusterName() {
+		return clusterName;
+	}
+
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
 	}
 }

@@ -27,6 +27,10 @@ import util.AWSUtil;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.jcraft.jcterm.JCTermSwingFrame;
 import com.jcraft.jcterm.JSchSession;
@@ -36,7 +40,7 @@ import com.jcraft.jsch.UserInfo;
 
 /**
  * @author gena
- *
+ * 
  */
 public class InstanceTemplateTest {
 
@@ -44,8 +48,10 @@ public class InstanceTemplateTest {
 
 	private static RestContext<EC2Client, EC2AsyncClient> context;
 
-	private static EC2Client client;
+	
 
+	private static Injector injector;	
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -66,7 +72,17 @@ public class InstanceTemplateTest {
 													.getProviderSpecificContext();
 
 		// Get a synchronous client
-		client = context.getApi();
+		final EC2Client client = context.getApi();
+		
+		class TestModule extends AbstractModule{
+
+			@Override
+			protected void configure() {
+				bind(EC2Client.class).toInstance(client);			
+			}
+			
+		}
+		injector =	Guice.createInjector(new TestModule());
 
 	}
 
@@ -82,11 +98,12 @@ public class InstanceTemplateTest {
 	 * Test method for
 	 * {@link org.jclouds.examples.ec2.createlamp.InstanceTemplate#run(org.jclouds.ec2.EC2Client)}
 	 * .
-	 *
+	 * 
 	 * @throws TimeoutException
 	 */
 	@Test
 	public void testRun() throws TimeoutException {
+		 
 		InstanceTemplate it = new InstanceTemplate(name).withInstanceType(M1_LARGE)
 														.withTcpPortAndTestPort(22)
 														// .withTcpPortAndTestPort(80)
@@ -106,15 +123,50 @@ public class InstanceTemplateTest {
 														.withScriptLine("echo EXTRA_CLASSPATH=\\\"/usr/share/java/mx4j-tools.jar\\\" >> /etc/default/cassandra")
 														.withScriptLine("service cassandra restart");
 
+		InstanceTemplate it2 = new InstanceTemplate(name + "2").withInstanceType(M1_LARGE)
+																.withTcpPortAndTestPort(22)
+																// .withTcpPortAndTestPort(80)
+																.withTcpPort(7000)
+																.withTcpPort(7199)
+																.withTcpPort(8888)
+																.withTcpPort(9160)
+																.withScriptLine("add-apt-repository -y 'deb http://www.apache.org/dist/cassandra/debian 10x main'")
+																.withScriptLine("gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D")
+																.withScriptLine("gpg --export --armor F758CE318D77295D | sudo apt-key add -")
+																.withScriptLine("gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00")
+																.withScriptLine("gpg --export --armor 2B5C1B00 | sudo apt-key add -")
+																.withScriptLine("apt-get update")
+																.withScriptLine("apt-get remove -y byobu")
+																.withScriptLine("apt-get install -y libmx4j-java")
+																.withScriptLine("apt-get install -y cassandra")
+																.withScriptLine("echo EXTRA_CLASSPATH=\\\"/usr/share/java/mx4j-tools.jar\\\" >> /etc/default/cassandra")
+																.withScriptLine("service cassandra restart");
+		injector.injectMembers(it);
+		injector.injectMembers(it2);
+		ClusterTemplate ct = new ClusterTemplate("ubuntu-cass").withInstance(it)
+																.withInstance(it2);
 
-		RunningInstance ri = it.run(client);
-		new MyJCTerm(	"ubuntu",
-						ri.getDnsName(),
-						22,
-						it.getKeyMaterial()
-							.getBytes());
+		String yaml = ct.toYaml();
+		System.out.println(yaml);
 
-		System.out.println(it.toYaml());
+		ct = ClusterTemplate.buildFromYaml(yaml);
+		
+		injector.injectMembers(ct);
+		for(InstanceTemplate instanceTemplate : ct.getInstances()){
+			injector.injectMembers(instanceTemplate);
+		}
+		
+		ct.run();
+		ct.terminate();
+		
+		// RunningInstance ri = it.run(client);
+		// new MyJCTerm( "ubuntu",
+		// ri.getDnsName(),
+		// 22,
+		// it.getKeyMaterial()
+		// .getBytes());
+
+		// System.out.println(it.toYaml());
 	}
 
 	/**
@@ -124,7 +176,7 @@ public class InstanceTemplateTest {
 	 */
 	@Test
 	public void testTerminate() {
-		new InstanceTemplate(name).terminate(client);
+		new InstanceTemplate(name).terminate();
 	}
 
 	// @Test

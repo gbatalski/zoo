@@ -73,7 +73,7 @@ public class JCloudsTest {
 									.build();
 
 		// specify your own groups which already have the correct rules applied
-		// //template.getOptions().as(EC2TemplateOptions.class).securityGroups(group1);
+		// template.getOptions().as(EC2TemplateOptions.class).securityGroups(group1);
 
 		// specify your own keypair for use in creating nodes
 		// template.getOptions().as(EC2TemplateOptions.class).keyPair("default");
