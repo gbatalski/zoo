@@ -1,20 +1,18 @@
 /**
  * 
  */
-package org.jclouds.examples.ec2.createlamp;
+package cloud.node.cluster;
 
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 
-import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.domain.RunningInstance;
 import org.jclouds.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 /**
  * @author gena

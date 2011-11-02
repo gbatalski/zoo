@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.jclouds.examples.ec2.createlamp;
+package cloud.node.cluster;
 
 import static org.jclouds.ec2.domain.InstanceType.T1_MICRO;
 import static org.jclouds.ec2.domain.IpProtocol.TCP;
@@ -17,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Resource;
 
 import org.jclouds.compute.domain.NodeMetadata;
+
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.domain.InstanceState;
 import org.jclouds.ec2.domain.IpProtocol;
@@ -29,6 +30,7 @@ import org.jclouds.logging.Logger;
 import org.jclouds.net.IPSocket;
 import org.jclouds.predicates.InetSocketAddressConnect;
 import org.jclouds.predicates.RetryablePredicate;
+
 import org.jclouds.scriptbuilder.ScriptBuilder;
 import org.jclouds.scriptbuilder.domain.OsFamily;
 import org.yaml.snakeyaml.Yaml;
@@ -39,8 +41,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-
-import static com.google.common.base.Strings.*;
 
 /**
  * @author gena
@@ -59,7 +59,7 @@ public class InstanceTemplate {
 	protected Logger logger = Logger.CONSOLE;
 
 	private String clusterName;
-	
+
 	private String name;
 
 	private String region = null;
