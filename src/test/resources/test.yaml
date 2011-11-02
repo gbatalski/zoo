@@ -1,0 +1,139 @@
+!!cloud.node.cluster.ClusterTemplate
+instances:
+- clusterName: null
+  image: ami-bbf539d2
+  instanceId: i-1710ce74
+  instanceType: m1.large
+  keyMaterial: '-----BEGIN RSA PRIVATE KEY-----
+
+    MIIEpAIBAAKCAQEAwqpih37X2tUYKh+UTa9rit7OsbPyvTp1pNON46eDP67Zcs6NOYqge0J7XahG
+
+    VDVFGXjEHp1BeYQVHxVubtwIyJVAh0YBefIoPyKGMIlhSH1nytcpSMwP/6MgU+OE0LH2pKF+YVHF
+
+    C0Z9HqaOfHGP25T4oNdnuRu21GTZlWkq4MiB6KQOoBv0HL63K1glqbC5VgGYp2z6mG7DKaDRsDHQ
+
+    RCf5X17otkTkMQInf8E+bh1QWoKUTgLlxMmij+ohtZr9UoVQNiLRCpRu8i0eijZdGU5/gwhj/NQu
+
+    Rq4R2JuCfsuCJ2Qrm8Sb9dR7p7hZ9q3GEUsJ3SQtLbNxIXtrmMxqJQIDAQABAoIBAQCTS4N0TPkd
+
+    n0JClVSNF6ADGyZA9g1FO5fK2TyytoysQixNH5dio89clOht7KcSjqAzbtrO42SogtXMiFXgUmPf
+
+    CngiI0l4sU/cvc3Vqg3PYPyJUhbt+2Jbp14Nu8lCdHZRCdVr5Ah5yKNh7ts/tFoK54Tdhz/3o83K
+
+    lmjBEiucmyf+iwJs5d0g1UIoe/1K5BfCnkD5HS6HeF1lHZRolKPkpnDpCf264PHB0kOOJBoafQrS
+
+    QN1NZ0teMKU8b/xQQUMATRYR22SXf7awrqDvQN0Q6z5enLIDDzD/ybpGZmMVEf4Stb99hsXwx6zM
+
+    voTpnBeWjBLLJUyFRUDHzsoZDxPhAoGBAPN4Ksp/1bu5Q4HFn+XMZHn9Vl4PpZVmm+ZANjqIfSQ4
+
+    EclV7ABYLj0jIQMpfEiqaXiDgJaBMsPc0bMWmcA80dkKDRYP4CEJ+j2zCtTXQn8jzt5inZ89TpAT
+
+    hk9CyMiqwgNvSLzm7h0gbjwV/yNE9vZMspBK7sdBGG4sAV3CgJwpAoGBAMyvM9I6TUL+ag8b4CAR
+
+    0tlzoyl/h7ac+cnUNY8oXHLhz0yiYvJWPPRc5pdub765hXzu2sztB1iK95evra7HLfKBBLyESBMk
+
+    buYywLWixkqZL/ytkWqeUj8LwcvobyZ9cSfst+zr3jnyx+M7VBf4zQJQsg2REocRvXXRTkmT3B2d
+
+    AoGAdQeYGgpkpH2jE2f5Oi6LRZAeycvfnfbajUzkRDKDZLuG4S5p6Kh6YWzXW3u/f/ZaCFG9p5qm
+
+    2jr0mY8NjLgvbpJERAyRgZAYNzwuwqxODGsb7w2cEoUXlG2uK79AYCSkaZ4+an7eiiWil0NDhqKJ
+
+    y06GrpE2QZTqt1pztavewjECgYABfvpS/AgaiD+AMsT1lwvCeRzlLcBxLj6JIhruG+5pDIt2VO2C
+
+    Ne0mIBOzYaRBcZuvKRPCUa0vEXzzx93uHBiS4CyHsDPSp/6DgjV0XmcynmICZ8ZbUCLrwQs+kUlW
+
+    r64HC6zgd2zdYY/ickmQD0p4TNywSrIm+JM47Dm1QfZm5QKBgQDtHD7WvIh5psvShVee63FcMvN/
+
+    5gLgPXK4RH5Qgc47ij+RuwrRGKna/OeTLByRROKrp5qlBRWCfMkZhBck2i5Slguls5nBUHrtr3yt
+
+    0Ye8VkHkUF6YBplgynHgpkw06DLzXIJvNGwDxYOa7AHaLDLfOQTpL9kJerRTEc0ygv0kpA==
+
+    -----END RSA PRIVATE KEY-----'
+  name: myjcloudtest
+  nodeMetadata: null
+  osFamily: UNIX
+  portRanges:
+  - {cidrIp: 0.0.0.0/0, fromPort: 22, ipProtocol: TCP, toPort: 22}
+  - {cidrIp: 0.0.0.0/0, fromPort: 7000, ipProtocol: TCP, toPort: 7000}
+  - {cidrIp: 0.0.0.0/0, fromPort: 7199, ipProtocol: TCP, toPort: 7199}
+  - {cidrIp: 0.0.0.0/0, fromPort: 8888, ipProtocol: TCP, toPort: 8888}
+  - {cidrIp: 0.0.0.0/0, fromPort: 9160, ipProtocol: TCP, toPort: 9160}
+  region: us-east-1
+  script: ['add-apt-repository -y ''deb http://www.apache.org/dist/cassandra/debian
+      10x main''', gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D, gpg --export --armor F758CE318D77295D | sudo apt-key add -,
+    gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00, gpg --export --armor 2B5C1B00 | sudo apt-key add -,
+    apt-get update, apt-get remove -y byobu, apt-get install -y libmx4j-java, apt-get install -y cassandra,
+    echo EXTRA_CLASSPATH=\"/usr/share/java/mx4j-tools.jar\" >> /etc/default/cassandra,
+    service cassandra restart]
+  testPorts: [22]
+  zone: us-east-1d
+- clusterName: null
+  image: ami-bbf539d2
+  instanceId: i-2711cf44
+  instanceType: m1.large
+  keyMaterial: '-----BEGIN RSA PRIVATE KEY-----
+
+    MIIEpAIBAAKCAQEAjdg2MouX7rESf0AOwwK7uYKtuUfuw0jGRpD8onx1rwEqYW2dshnXr/zVzeIu
+
+    OHJHOIE7K0WVqkaY+YHU3yiAKuoaaR0M5oRMZg8HUE/seVcln9AO3ApkcRC/mXalhH4/U5TCtD1N
+
+    dfMledSea9hqgoMrqDrBTUhMMrPY4LW3HmeyPiLdwy4NwQvxbnw32MRp1qDp7OnPYOyKnt0tj+53
+
+    EqgvMgO1gVVj9RmxjdH4bikqTOZvKzeptT41TPpWUcLhIBht8dydSrcEgJU6hTeF1fbqsrlAuVX4
+
+    5aNDZ6RQO8eIPY2K2pdyzUJer3zs0TpvRRN/bO95O5E+dUg2svEu1QIDAQABAoIBAF/zHdZbL087
+
+    YLPLdTDdLHd0umdXDV/0XotlkD+pyUG0nCKDr+TGLmzRrx8yHOn6A8tpP8kprPAeCWTeOk0qbGib
+
+    K3pnOE7Gt5diGyRsrB34oW7Voved4AvLtI/u/k/9xoCXZI3f2gIrk/IxrWhuYL4gVOvbst7ARSsX
+
+    FWIMCe76U485s0CaKt9PU9i/sp8xdREIu8wY3v1uF120HUJTOXowvobfr77uDeqIJTzRVHCLWfnt
+
+    cWkcflvhZJvOTzsNVf0bCNKjooh/kzJE6o4vzo6DlCTEba35txADDHbarROTA4L7gfagmhzlR9lS
+
+    gcjMCtjaancsuX6qrBvSlUOJCZECgYEA98EQXeC2ql6N8J0U5wZjnuMEnUE6X2RejpbeNQLOWj6d
+
+    stHVdkuwuyuRVXISM64AKvLDp5wi7q6/S3o5ODj7YXe/SHO621ycZhCQSXJA3yDLrY2JvKfixNQF
+
+    OAQn5BMhDWlJbWr48SiEEodM5gPhwF+Bh+lR0HQlTP2+YL645r8CgYEAkpDEmOj4z9LIu0Sk8iu4
+
+    71chnm8vxxPU5GEumxqfqdAf3vBfFcF+bTCb7O4XfTofAR+PwwRRUiIZjfoY5a67KHhSFx2lpJI6
+
+    tFMBy6jnp/ENAsAagVoNSX6Dqc9Qg0Rv7TN7xtnJsjvnLWvIez7RiUmOWCYYTuIlROJUfsSrg2sC
+
+    gYEA2JDrxJP0OHKUslos9lEwbafV1bw50T7EJPId5MrCJEKNyM0BQfmhz8qirMUcwg38WY6Blpa2
+
+    NluMHecF825j1uw8yZFYKf4HPHSIG5uCt0hMojWRy9YZNKJ8uV1wnT5Xawi4xat3Vh5rbGLWxk1o
+
+    Xadea7Z47LVKEcXQT3MH37MCgYA5HEIPF1DEomznU9M2LkVMtdX6x3aFizu8lgW0GIa4g8m3dFCI
+
+    yLH72CIaC5iJillEdcjuA8OwTmtIwHhtH038cg4CxeGio/xOAb5EXpeOAEbCmJp7Ztygk7S4OXk0
+
+    /Tjj49jKXljSo7bsIwCmzY6WgVv/CzETo9lD4zFriDUQ6wKBgQDzt7NVyghYkjVZAVfkuUkjiMya
+
+    gnrZqZ4dIpD722kRB+ck5jKKff9cbyRYYk8PZ891k8c1F4Os2qQ9SRlM8BD9lUKnEBGcjHlSKl4Q
+
+    5GI9pUigaaJgaqamD47pN7tjbafnboi7MABbjwydn7CxaOMRbRe4sgcHi7/Fe+xOm0uiFA==
+
+    -----END RSA PRIVATE KEY-----'
+  name: myjcloudtest2
+  nodeMetadata: null
+  osFamily: UNIX
+  portRanges:
+  - {cidrIp: 0.0.0.0/0, fromPort: 22, ipProtocol: TCP, toPort: 22}
+  - {cidrIp: 0.0.0.0/0, fromPort: 7000, ipProtocol: TCP, toPort: 7000}
+  - {cidrIp: 0.0.0.0/0, fromPort: 7199, ipProtocol: TCP, toPort: 7199}
+  - {cidrIp: 0.0.0.0/0, fromPort: 8888, ipProtocol: TCP, toPort: 8888}
+  - {cidrIp: 0.0.0.0/0, fromPort: 9160, ipProtocol: TCP, toPort: 9160}
+  region: us-east-1
+  script: ['add-apt-repository -y ''deb http://www.apache.org/dist/cassandra/debian
+      10x main''', gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D, gpg --export --armor F758CE318D77295D | sudo apt-key add -,
+    gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00, gpg --export --armor 2B5C1B00 | sudo apt-key add -,
+    apt-get update, apt-get remove -y byobu, apt-get install -y libmx4j-java, apt-get install -y cassandra,
+    echo EXTRA_CLASSPATH=\"/usr/share/java/mx4j-tools.jar\" >> /etc/default/cassandra,
+    service cassandra restart]
+  testPorts: [22]
+  zone: us-east-1d
+name: ubuntu-cass
+
+
